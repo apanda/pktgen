@@ -7,7 +7,7 @@ gen_pkt_size(struct pktgen_config *config)
 
 static void
 stats(double *start_time, struct rate_stats *r_stats,
-      struct pktgen_config *config)
+      struct pktgen_config *config UNUSED)
 {
     double now = get_time_msec();
     double elapsed = (now - *start_time) / 1000;
@@ -51,7 +51,7 @@ stats(double *start_time, struct rate_stats *r_stats,
 
     if (elapsed >= 1.0f) {
 	/*printf("tx_pps %.0f rx_pps %.0f\n", tx_pps, rx_pps);*/
-        (void)sprintf(config->o_sec, "Core %u: tx_pps: %.0f tx_gbps: %.2f rx_pps: %.0f rx_gbps: %.2f\n",
+        printf("Core %u: tx_pps: %.0f tx_gbps: %.2f rx_pps: %.0f rx_gbps: %.2f\n",
                 rte_lcore_id(), tx_pps, tx_bps/1000000000.0f,
                 rx_pps, rx_bps / 1000000000.0f);
         r_stats->rx_pkts = 0;
@@ -97,16 +97,10 @@ latency_calc(double *samples, uint32_t sample_count, struct rate_stats *r_stats)
 }
 
 static void
-generate_packet(struct pkt *buf, struct pktgen_config *config,
-                double *flow_times, uint16_t *flow_ctrs, double now)
+generate_packet_init(struct pkt *buf, struct pktgen_config *config)
 {
     struct ether_hdr *eth_hdr;
     struct ipv4_hdr *ip_hdr;
-    struct udp_hdr *udp_hdr;
-    struct tcp_hdr *tcp_hdr;
-    uint16_t pkt_size = buf->size;
-    uint64_t flow;
-    uint32_t num_flows = config->num_flows;
 
     struct ether_addr addr;
     rte_eth_macaddr_get(config->port, &addr);
@@ -128,7 +122,22 @@ generate_packet(struct pkt *buf, struct pktgen_config *config,
     ip_hdr->next_proto_id = config->proto;
     ip_hdr->packet_id = 0;
     ip_hdr->version_ihl = (1 << 6) + 5;
-    ip_hdr->total_length = rte_cpu_to_be_16(pkt_size - 4 - sizeof(*eth_hdr));
+    ip_hdr->hdr_checksum = 0;
+}
+
+static void
+generate_packet(struct pkt *buf, struct pktgen_config *config,
+                double *flow_times, uint16_t *flow_ctrs, double now)
+{
+    struct ipv4_hdr *ip_hdr;
+    struct udp_hdr *udp_hdr;
+    struct tcp_hdr *tcp_hdr;
+    uint16_t pkt_size = buf->size;
+    uint64_t flow;
+    uint32_t num_flows = config->num_flows;
+
+    ip_hdr = &buf->ip_hdr;
+    ip_hdr->total_length = rte_cpu_to_be_16(pkt_size - 4 - sizeof(struct ether_hdr));
     ip_hdr->hdr_checksum = 0;
 
     flow = num_flows > 0 ? 1 + rand_fast(&config->seed) % num_flows : 0;
@@ -144,7 +153,7 @@ generate_packet(struct pkt *buf, struct pktgen_config *config,
     ip_hdr->src_addr = rte_cpu_to_be_32((~config->prefix & (flow_ctrs[flow] * flow * config->ip_min)) | config->prefix);
     ip_hdr->dst_addr = rte_cpu_to_be_32((~config->prefix & (flow_ctrs[flow] * (flow ^ GEN_KEY) * config->ip_min)) | config->prefix);
 
-    ip_hdr->total_length = rte_cpu_to_be_16(pkt_size - 4 - sizeof(*eth_hdr));
+    ip_hdr->total_length = rte_cpu_to_be_16(pkt_size - 4 - sizeof(struct ether_hdr));
     ip_hdr->hdr_checksum = rte_ipv4_cksum(ip_hdr);
 
     uint16_t sport = rte_cpu_to_be_16(ip_hdr->dst_addr % 0x1111);
@@ -156,7 +165,7 @@ generate_packet(struct pkt *buf, struct pktgen_config *config,
         udp_hdr->src_port = sport;
         udp_hdr->dst_port = dport;
         udp_hdr->dgram_cksum = 0;
-        udp_hdr->dgram_len = rte_cpu_to_be_16(pkt_size - 4 - sizeof(*eth_hdr) -
+        udp_hdr->dgram_len = rte_cpu_to_be_16(pkt_size - 4 - sizeof(struct ether_hdr) -
                 sizeof(*ip_hdr));
         l4s = sizeof(struct udp_hdr);
     } else {
@@ -168,10 +177,10 @@ generate_packet(struct pkt *buf, struct pktgen_config *config,
         l4s = sizeof(struct tcp_hdr);
     }
 
-    memset(buf->data, 0, pkt_size - 4 - sizeof(*eth_hdr) - sizeof(*ip_hdr) - l4s - 1);
+    memset(buf->data, 0, pkt_size - sizeof(struct ether_hdr) - sizeof(*ip_hdr) - l4s);
     if (config->flags & FLAG_RANDOMIZE_PAYLOAD) {
         unsigned r = 0;
-        while (r < pkt_size - 4 - sizeof(*eth_hdr) - sizeof(*ip_hdr) - l4s - 1) {
+        while (r < pkt_size - sizeof(struct ether_hdr) - sizeof(*ip_hdr) - l4s) {
             buf->data[r] = (uint8_t)rand_fast(&config->seed);
             r++;
         }
@@ -182,11 +191,11 @@ generate_packet(struct pkt *buf, struct pktgen_config *config,
 static void
 worker_loop(struct pktgen_config *config)
 {
-    struct pkt tx_burst[NUM_PKTS];
+    struct pkt tx_burst;
     struct rte_mempool *tx_pool = config->tx_pool;
     uint32_t nb_tx, nb_rx, i, sample_count = 0,
              num_samples = NUM_SAMPLES;
-    struct rte_mbuf *bufs[NUM_PKTS];
+    struct rte_mbuf *bufs[NUM_PKTS + 1];
     double now, start_time = get_time_msec(),
            *samples = (double*)malloc(2*num_samples * sizeof(double));
     int64_t burst;
@@ -233,11 +242,16 @@ worker_loop(struct pktgen_config *config)
         }
 
         config->start_time = get_time_msec();
+        generate_packet_init(&tx_burst, config);
         while (!(config->flags & FLAG_WAIT) &&
                unlikely((now = get_time_msec()) -
                config->start_time < config->duration)) {
             if (now - config->start_time > config->warmup) {
                 stats(&start_time, &r_stats, config);
+            }
+            if (tx_burst.eth_hdr.s_addr.addr_bytes[0] != 0x68 ||
+                    tx_burst.eth_hdr.d_addr.addr_bytes[0] != 0x68) {
+                rte_panic("MAC address is not what we expected");
             }
 
             uint64_t exp_bytes = ((now - start_time) / 1000) * config->tx_rate * 1000000 / 8;
@@ -281,22 +295,22 @@ worker_loop(struct pktgen_config *config)
             now = get_time_msec();
             uint32_t lens[burst];
             if (unlikely(nb_rx < burst &&
-                mbuf_alloc_bulk(tx_pool, bufs + nb_rx, MAX_PKT_SIZE, burst - nb_rx) != 0)) {
+                mbuf_alloc_bulk(tx_pool, bufs + nb_rx, 64, burst - nb_rx) != 0)) {
                 continue;
             }
 
             for (i = 0; i < burst; i++) {
                 uint16_t pkt_size = gen_pkt_size(config);
                 lens[i] = pkt_size + ETH_OVERHEAD;
-                tx_burst[i].size = pkt_size;
-                generate_packet(&tx_burst[i], config, flow_times, flow_ctrs, now);
+                tx_burst.size = pkt_size;
+                generate_packet(&tx_burst, config, flow_times, flow_ctrs, now);
 
                 struct rte_mbuf *buf = bufs[i];
                 buf->pkt_len = pkt_size - 4;
                 buf->data_len = pkt_size - 4;
                 buf->nb_segs = 1;
                 rte_memcpy((uint8_t*)buf->buf_addr + buf->data_off,
-                        (uint8_t*)&tx_burst[i] + sizeof(uint16_t), pkt_size);
+                        (uint8_t*)&tx_burst + sizeof(uint16_t), pkt_size);
 
                 if (config->flags & FLAG_MEASURE_LATENCY) {
                     double *p = rte_pktmbuf_mtod_offset(bufs[i], double *,

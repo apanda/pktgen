@@ -242,7 +242,7 @@ def run(q):
         for i in range(n):
             q.add_job(str(i), Job(1, {
                 "tx_rate": 10000,
-                "duration": 10000,
+                "duration": 6400 * 60 * 1000,
                 "warmup": 0,
                 "num_flows": 10,
                 "size_min": 768, "size_max": 768,
