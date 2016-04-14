@@ -20,6 +20,7 @@ def start_traffic(q, server_id, tx_mbps, dur_sec):
             "port_max": 2048}))
         time.sleep(dur_sec)
     except:
+        raise
         q.add_job(server_id, Job(0, {"stop": True}))
 
 def main():

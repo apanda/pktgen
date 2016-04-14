@@ -19,6 +19,7 @@ typedef struct rte_mbuf **mbuf_array_t;
 
 struct rte_mbuf tx_mbuf_template[RTE_MAX_LCORE];
 
+#if 0
 static void
 setup_daemon(void)
 {
@@ -67,6 +68,7 @@ setup_daemon(void)
 
     openlog("pktgen", LOG_PID, LOG_DAEMON);
 }
+#endif
 
 /* Stolen from BESS
  * https://github.com/NetSys/bess/blob/develop/core/utils/random.h
