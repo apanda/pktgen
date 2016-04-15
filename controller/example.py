@@ -18,10 +18,16 @@ def start_traffic(q, server_id, tx_mbps, dur_sec):
             "life_max": dur_msec,
             "port_min": 1024,
             "port_max": 2048}))
-        time.sleep(dur_sec)
+        time.sleep(10)
+        print "Issuing stop"
+        q.results_event.clear()
+        q.add_job(server_id, Job(0, {"stop": True, "print": True}))
+        print "Waiting for event"
+        q.results_event.wait()
+        print "Done Waiting for event"
     except:
+        q.add_job(server_id, Job(0, {"stop": True, "print": True}))
         raise
-        q.add_job(server_id, Job(0, {"stop": True}))
 
 def main():
     q = Q("127.0.0.1", 1800, None, None)
@@ -33,7 +39,7 @@ def main():
     q.add_node(Node(server_id, server_ip, server_port))
     print("Starting traffic. Press ctrl + c to stop")
     # Generate 1 10gbps flow of 64B packets for 10 seconds
-    start_traffic(q, server_id, 10000, 10)
+    start_traffic(q, server_id, 10000, 10000)
     q.stop()
 
 if __name__ == '__main__':

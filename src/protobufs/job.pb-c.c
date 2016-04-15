@@ -47,116 +47,115 @@ job__free_unpacked(Job *message, ProtobufCAllocator *allocator)
 }
 static const ProtobufCFieldDescriptor job__field_descriptors[19] = {
     {
-        "tx_rate", 1, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_tx_rate), offsetof(Job, tx_rate), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "tx_rate", 1, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_tx_rate), offsetof(Job, tx_rate), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "duration", 2, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_duration), offsetof(Job, duration), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "duration", 2, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_duration), offsetof(Job, duration), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "warmup", 3, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_warmup), offsetof(Job, warmup), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "warmup", 3, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_warmup), offsetof(Job, warmup), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "num_flows", 4, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_num_flows), offsetof(Job, num_flows), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "num_flows", 4, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_num_flows), offsetof(Job, num_flows), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "port_min", 5, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_port_min), offsetof(Job, port_min), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "port_min", 5, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_port_min), offsetof(Job, port_min), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "port_max", 6, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_port_max), offsetof(Job, port_max), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "port_max", 6, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_port_max), offsetof(Job, port_max), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "size_min", 7, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_size_min), offsetof(Job, size_min), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "size_min", 7, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_size_min), offsetof(Job, size_min), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "size_max", 8, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
-        offsetof(Job, has_size_max), offsetof(Job, size_max), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "size_max", 8, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_INT32,
+     offsetof(Job, has_size_max), offsetof(Job, size_max), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "life_min", 9, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_FLOAT,
-        offsetof(Job, has_life_min), offsetof(Job, life_min), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "life_min", 9, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_FLOAT,
+     offsetof(Job, has_life_min), offsetof(Job, life_min), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "life_max", 10, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_FLOAT,
-        offsetof(Job, has_life_max), offsetof(Job, life_max), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "life_max", 10, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_FLOAT,
+     offsetof(Job, has_life_max), offsetof(Job, life_max), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "randomize", 11, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
-        offsetof(Job, has_randomize), offsetof(Job, randomize), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "randomize", 11, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
+     offsetof(Job, has_randomize), offsetof(Job, randomize), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "latency", 12, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
-        offsetof(Job, has_latency), offsetof(Job, latency), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "latency", 12, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
+     offsetof(Job, has_latency), offsetof(Job, latency), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "online", 13, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
-        offsetof(Job, has_online), offsetof(Job, online), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "online", 13, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
+     offsetof(Job, has_online), offsetof(Job, online), NULL, NULL,
+     0,            /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "stop", 14, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
-        offsetof(Job, has_stop), offsetof(Job, stop), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "stop", 14, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
+     offsetof(Job, has_stop), offsetof(Job, stop), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "print", 15, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
-        offsetof(Job, has_print), offsetof(Job, print), NULL, NULL,
-        0,            /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "print", 15, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
+     offsetof(Job, has_print), offsetof(Job, print), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "tcp", 16, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
-        offsetof(Job, has_tcp), offsetof(Job, tcp), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "tcp", 16, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_BOOL,
+     offsetof(Job, has_tcp), offsetof(Job, tcp), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "src_mac", 17, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_STRING,
-        0,                                     /* quantifier_offset */
-        offsetof(Job, src_mac), NULL, NULL, 0, /* flags */
-        0, NULL, NULL                          /* reserved1,reserved2, etc */
+     "src_mac", 17, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_STRING,
+     0,                                     /* quantifier_offset */
+     offsetof(Job, src_mac), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                          /* reserved1,reserved2, etc */
     },
     {
-        "dst_mac", 18, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_STRING,
-        0,                                     /* quantifier_offset */
-        offsetof(Job, dst_mac), NULL, NULL, 0, /* flags */
-        0, NULL, NULL                          /* reserved1,reserved2, etc */
+     "dst_mac", 18, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_STRING,
+     0,                                     /* quantifier_offset */
+     offsetof(Job, dst_mac), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                          /* reserved1,reserved2, etc */
     },
     {
-        "port", 19, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_STRING,
-        0,                                  /* quantifier_offset */
-        offsetof(Job, port), NULL, NULL, 0, /* flags */
-        0, NULL, NULL                       /* reserved1,reserved2, etc */
+     "port", 19, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_STRING,
+     0,                                  /* quantifier_offset */
+     offsetof(Job, port), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                       /* reserved1,reserved2, etc */
     },
 };
 static const unsigned job__field_indices_by_name[] = {
@@ -182,19 +181,8 @@ static const unsigned job__field_indices_by_name[] = {
 };
 static const ProtobufCIntRange job__number_ranges[1 + 1] = {{1, 0}, {0, 19}};
 const ProtobufCMessageDescriptor job__descriptor = {
-    PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
-    "Job",
-    "Job",
-    "Job",
-    "",
-    sizeof(Job),
-    19,
-    job__field_descriptors,
-    job__field_indices_by_name,
-    1,
-    job__number_ranges,
-    (ProtobufCMessageInit)job__init,
-    NULL,
-    NULL,
+    PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC, "Job", "Job", "Job", "", sizeof(Job),
+    19, job__field_descriptors, job__field_indices_by_name, 1,
+    job__number_ranges, (ProtobufCMessageInit)job__init, NULL, NULL,
     NULL /* reserved[123] */
 };

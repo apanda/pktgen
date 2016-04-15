@@ -67,8 +67,8 @@ port_init(uint8_t port, struct pktgen_config *config UNUSED)
 
     struct ether_addr addr;
     rte_eth_macaddr_get(port, &addr);
-    printf("Port %u MAC: %02" PRIx8 " %02" PRIx8 " %02" PRIx8
-                     " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 "\n",
+    printf("Port %u MAC: %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8
+           " %02" PRIx8 " %02" PRIx8 "\n",
            (unsigned)port, addr.addr_bytes[0], addr.addr_bytes[1],
            addr.addr_bytes[2], addr.addr_bytes[3], addr.addr_bytes[4],
            addr.addr_bytes[5]);
@@ -196,6 +196,7 @@ request_handler(int fd_client, char *request)
 {
     int32_t req_len;
     char len_buf[4];
+    printf("Got request\n");
 
     if (read_n_bytes(fd_client, 4, len_buf) < 0) {
         printf("Failed to read length of status.");
@@ -222,7 +223,8 @@ send_status(int status, char *ip, int ctrl)
     void *buf;
 
     if (sock < 0) {
-        printf("Failed to connect to the scheduler to send status.");
+        printf("Failed to connect to the scheduler to send status. %s %s\n", ip,
+               port);
         close(sock);
         return -1;
     }
@@ -458,7 +460,7 @@ main(int argc, char *argv[])
         if (port_init(port, NULL) != 0) {
             rte_exit(EXIT_FAILURE, "Cannot init port %" PRIu8 "\n", port);
         }
-    	port_map[core++] = port;
+        port_map[core++] = port;
     }
 
     int fd_server = create_and_bind_socket(argv[1]);
@@ -477,7 +479,6 @@ main(int argc, char *argv[])
     port = 0;
     RTE_LCORE_FOREACH_SLAVE(i)
     {
-        core = rte_lcore_index(i);
         memset(&config[core], 0, sizeof(struct pktgen_config));
         if (port >= nb_ports) {
             config[core].port = 0xff;
@@ -529,8 +530,7 @@ main(int argc, char *argv[])
             if ((request_bytes = request_handler(fd_client, request)) > 0) {
                 if (response_handler(fd_client, request, request_bytes, &cmd,
                                      client_ip, control_port) == -1) {
-                    syslog(LOG_ERR,
-                           "Failed to respond to request from scheduler.");
+                    printf("Failed to respond to request from scheduler.");
                 }
 
                 /* Launch generator */
@@ -570,21 +570,6 @@ main(int argc, char *argv[])
                         sem_wait(&config[core].stop_sempahore);
                     }
                     ether_addr_copy(&cmd.dst_mac, &config[core].dst_mac);
-#if 0
-printf("config[%u] job: {\n"
-"\ttx_rate: %u\n"
-"\twarmup: %u\n"
-"\tduration: %u\n"
-"\tnum_flows: %u\n"
-"\tsize_min: %u\n"
-"\tsize_max: %u\n"
-"\tlife_min: %f\n"
-"\tlife_max: %f\n"
-"\tflags: %u\n}\n", i,
-config[i].tx_rate, config[i].warmup, config[i].duration,
-config[i].num_flows, config[i].size_min, config[i].size_max,
-config[i].life_min, config[i].life_max, config[i].flags);
-#endif
                 launch_done:
                     core++;
                     port++;

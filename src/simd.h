@@ -45,8 +45,8 @@ print_m256i(__m256i a)
     uint32_t b[8] __ymm_aligned;
 
     *((__m256i *)b) = a;
-    printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", b[0], b[1],
-           b[2], b[3], b[4], b[5], b[6], b[7]);
+    printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", b[0], b[1], b[2], b[3],
+           b[4], b[5], b[6], b[7]);
 }
 
 static inline __m256d

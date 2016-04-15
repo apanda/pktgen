@@ -86,178 +86,178 @@ status__free_unpacked(Status *message, ProtobufCAllocator *allocator)
 }
 static const ProtobufCFieldDescriptor port_stats__field_descriptors[29] = {
     {
-        "n", 1, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
-        0,                                     /* quantifier_offset */
-        offsetof(PortStats, n), NULL, NULL, 0, /* flags */
-        0, NULL, NULL                          /* reserved1,reserved2, etc */
+     "n", 1, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
+     0,                                     /* quantifier_offset */
+     offsetof(PortStats, n), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                          /* reserved1,reserved2, etc */
     },
     {
-        "n_rtt", 2, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
-        0,                                         /* quantifier_offset */
-        offsetof(PortStats, n_rtt), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "n_rtt", 2, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
+     0,                                         /* quantifier_offset */
+     offsetof(PortStats, n_rtt), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                              /* reserved1,reserved2, etc */
     },
     {
-        "port", 3, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_STRING,
-        0,                                        /* quantifier_offset */
-        offsetof(PortStats, port), NULL, NULL, 0, /* flags */
-        0, NULL, NULL                             /* reserved1,reserved2, etc */
+     "port", 3, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_STRING,
+     0,                                        /* quantifier_offset */
+     offsetof(PortStats, port), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                             /* reserved1,reserved2, etc */
     },
     {
-        "avg_rxmpps", 4, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, avg_rxmpps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "avg_rxmpps", 4, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, avg_rxmpps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "std_rxmpps", 5, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, std_rxmpps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "std_rxmpps", 5, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, std_rxmpps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "avg_rxbps", 6, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                             /* quantifier_offset */
-        offsetof(PortStats, avg_rxbps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "avg_rxbps", 6, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                             /* quantifier_offset */
+     offsetof(PortStats, avg_rxbps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "std_rxbps", 7, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                             /* quantifier_offset */
-        offsetof(PortStats, std_rxbps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "std_rxbps", 7, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                             /* quantifier_offset */
+     offsetof(PortStats, std_rxbps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "avg_txmpps", 8, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, avg_txmpps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "avg_txmpps", 8, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, avg_txmpps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "std_txmpps", 9, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, std_txmpps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "std_txmpps", 9, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, std_txmpps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "avg_txbps", 10, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                             /* quantifier_offset */
-        offsetof(PortStats, avg_txbps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "avg_txbps", 10, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                             /* quantifier_offset */
+     offsetof(PortStats, avg_txbps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "std_txbps", 11, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                             /* quantifier_offset */
-        offsetof(PortStats, std_txbps), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "std_txbps", 11, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                             /* quantifier_offset */
+     offsetof(PortStats, std_txbps), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "avg_txwire", 12, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, avg_txwire), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "avg_txwire", 12, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, avg_txwire), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "std_txwire", 13, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, std_txwire), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "std_txwire", 13, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, std_txwire), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "avg_rxwire", 14, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, avg_rxwire), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "avg_rxwire", 14, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, avg_rxwire), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "std_rxwire", 15, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                              /* quantifier_offset */
-        offsetof(PortStats, std_rxwire), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "std_rxwire", 15, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                              /* quantifier_offset */
+     offsetof(PortStats, std_rxwire), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "rtt_avg", 16, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                           /* quantifier_offset */
-        offsetof(PortStats, rtt_avg), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_avg", 16, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                           /* quantifier_offset */
+     offsetof(PortStats, rtt_avg), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                                /* reserved1,reserved2, etc */
     },
     {
-        "rtt_std", 17, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                           /* quantifier_offset */
-        offsetof(PortStats, rtt_std), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_std", 17, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                           /* quantifier_offset */
+     offsetof(PortStats, rtt_std), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                                /* reserved1,reserved2, etc */
     },
     {
-        "rtt_0", 18, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                         /* quantifier_offset */
-        offsetof(PortStats, rtt_0), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_0", 18, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                         /* quantifier_offset */
+     offsetof(PortStats, rtt_0), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                              /* reserved1,reserved2, etc */
     },
     {
-        "rtt_25", 19, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                          /* quantifier_offset */
-        offsetof(PortStats, rtt_25), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_25", 19, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                          /* quantifier_offset */
+     offsetof(PortStats, rtt_25), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                               /* reserved1,reserved2, etc */
     },
     {
-        "rtt_50", 20, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                          /* quantifier_offset */
-        offsetof(PortStats, rtt_50), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_50", 20, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                          /* quantifier_offset */
+     offsetof(PortStats, rtt_50), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                               /* reserved1,reserved2, etc */
     },
     {
-        "rtt_75", 21, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                          /* quantifier_offset */
-        offsetof(PortStats, rtt_75), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_75", 21, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                          /* quantifier_offset */
+     offsetof(PortStats, rtt_75), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                               /* reserved1,reserved2, etc */
     },
     {
-        "rtt_90", 22, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                          /* quantifier_offset */
-        offsetof(PortStats, rtt_90), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_90", 22, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                          /* quantifier_offset */
+     offsetof(PortStats, rtt_90), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                               /* reserved1,reserved2, etc */
     },
     {
-        "rtt_95", 23, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                          /* quantifier_offset */
-        offsetof(PortStats, rtt_95), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_95", 23, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                          /* quantifier_offset */
+     offsetof(PortStats, rtt_95), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                               /* reserved1,reserved2, etc */
     },
     {
-        "rtt_99", 24, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                          /* quantifier_offset */
-        offsetof(PortStats, rtt_99), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_99", 24, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                          /* quantifier_offset */
+     offsetof(PortStats, rtt_99), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                               /* reserved1,reserved2, etc */
     },
     {
-        "rtt_100", 25, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
-        0,                                           /* quantifier_offset */
-        offsetof(PortStats, rtt_100), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rtt_100", 25, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_DOUBLE,
+     0,                                           /* quantifier_offset */
+     offsetof(PortStats, rtt_100), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                                /* reserved1,reserved2, etc */
     },
     {
-        "tx_bytes", 26, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
-        0,                                            /* quantifier_offset */
-        offsetof(PortStats, tx_bytes), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "tx_bytes", 26, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
+     0,                                            /* quantifier_offset */
+     offsetof(PortStats, tx_bytes), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "tx_pkts", 27, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
-        0,                                           /* quantifier_offset */
-        offsetof(PortStats, tx_pkts), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "tx_pkts", 27, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
+     0,                                           /* quantifier_offset */
+     offsetof(PortStats, tx_pkts), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                                /* reserved1,reserved2, etc */
     },
     {
-        "rx_bytes", 28, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
-        0,                                            /* quantifier_offset */
-        offsetof(PortStats, rx_bytes), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rx_bytes", 28, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
+     0,                                            /* quantifier_offset */
+     offsetof(PortStats, rx_bytes), NULL, NULL, 0, /* flags */
+     0, NULL, NULL /* reserved1,reserved2, etc */
     },
     {
-        "rx_pkts", 29, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
-        0,                                           /* quantifier_offset */
-        offsetof(PortStats, rx_pkts), NULL, NULL, 0, /* flags */
-        0, NULL, NULL /* reserved1,reserved2, etc */
+     "rx_pkts", 29, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_UINT64,
+     0,                                           /* quantifier_offset */
+     offsetof(PortStats, rx_pkts), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                                /* reserved1,reserved2, etc */
     },
 };
 static const unsigned port_stats__field_indices_by_name[] = {
@@ -294,21 +294,10 @@ static const unsigned port_stats__field_indices_by_name[] = {
 static const ProtobufCIntRange port_stats__number_ranges[1 + 1] = {{1, 0},
                                                                    {0, 29}};
 const ProtobufCMessageDescriptor port_stats__descriptor = {
-    PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
-    "PortStats",
-    "PortStats",
-    "PortStats",
-    "",
-    sizeof(PortStats),
-    29,
-    port_stats__field_descriptors,
-    port_stats__field_indices_by_name,
-    1,
-    port_stats__number_ranges,
-    (ProtobufCMessageInit)port_stats__init,
-    NULL,
-    NULL,
-    NULL /* reserved[123] */
+    PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC, "PortStats", "PortStats", "PortStats",
+    "", sizeof(PortStats), 29, port_stats__field_descriptors,
+    port_stats__field_indices_by_name, 1, port_stats__number_ranges,
+    (ProtobufCMessageInit)port_stats__init, NULL, NULL, NULL /* reserved[123] */
 };
 static const ProtobufCEnumValue status__type__enum_values_by_number[3] = {
     {"FAIL", "STATUS__TYPE__FAIL", 0},
@@ -320,40 +309,29 @@ static const ProtobufCEnumValueIndex status__type__enum_values_by_name[3] = {
     {"FAIL", 0}, {"STATS", 2}, {"SUCCESS", 1},
 };
 const ProtobufCEnumDescriptor status__type__descriptor = {
-    PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC,
-    "Status.Type",
-    "Type",
-    "Status__Type",
-    "",
-    3,
-    status__type__enum_values_by_number,
-    3,
-    status__type__enum_values_by_name,
-    1,
-    status__type__value_ranges,
-    NULL,
-    NULL,
-    NULL,
-    NULL /* reserved[1234] */
+    PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC, "Status.Type", "Type", "Status__Type",
+    "", 3, status__type__enum_values_by_number, 3,
+    status__type__enum_values_by_name, 1, status__type__value_ranges, NULL,
+    NULL, NULL, NULL /* reserved[1234] */
 };
 static const ProtobufCFieldDescriptor status__field_descriptors[3] = {
     {
-        "port", 1, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_INT32,
-        0,                                     /* quantifier_offset */
-        offsetof(Status, port), NULL, NULL, 0, /* flags */
-        0, NULL, NULL                          /* reserved1,reserved2, etc */
+     "port", 1, PROTOBUF_C_LABEL_REQUIRED, PROTOBUF_C_TYPE_INT32,
+     0,                                     /* quantifier_offset */
+     offsetof(Status, port), NULL, NULL, 0, /* flags */
+     0, NULL, NULL                          /* reserved1,reserved2, etc */
     },
     {
-        "type", 2, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_ENUM,
-        offsetof(Status, has_type), offsetof(Status, type),
-        &status__type__descriptor, NULL, 0, /* flags */
-        0, NULL, NULL                       /* reserved1,reserved2, etc */
+     "type", 2, PROTOBUF_C_LABEL_OPTIONAL, PROTOBUF_C_TYPE_ENUM,
+     offsetof(Status, has_type), offsetof(Status, type),
+     &status__type__descriptor, NULL, 0, /* flags */
+     0, NULL, NULL                       /* reserved1,reserved2, etc */
     },
     {
-        "stats", 3, PROTOBUF_C_LABEL_REPEATED, PROTOBUF_C_TYPE_MESSAGE,
-        offsetof(Status, n_stats), offsetof(Status, stats),
-        &port_stats__descriptor, NULL, 0, /* flags */
-        0, NULL, NULL                     /* reserved1,reserved2, etc */
+     "stats", 3, PROTOBUF_C_LABEL_REPEATED, PROTOBUF_C_TYPE_MESSAGE,
+     offsetof(Status, n_stats), offsetof(Status, stats),
+     &port_stats__descriptor, NULL, 0, /* flags */
+     0, NULL, NULL                     /* reserved1,reserved2, etc */
     },
 };
 static const unsigned status__field_indices_by_name[] = {
@@ -363,19 +341,8 @@ static const unsigned status__field_indices_by_name[] = {
 };
 static const ProtobufCIntRange status__number_ranges[1 + 1] = {{1, 0}, {0, 3}};
 const ProtobufCMessageDescriptor status__descriptor = {
-    PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
-    "Status",
-    "Status",
-    "Status",
-    "",
-    sizeof(Status),
-    3,
-    status__field_descriptors,
-    status__field_indices_by_name,
-    1,
-    status__number_ranges,
-    (ProtobufCMessageInit)status__init,
-    NULL,
-    NULL,
+    PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC, "Status", "Status", "Status", "",
+    sizeof(Status), 3, status__field_descriptors, status__field_indices_by_name,
+    1, status__number_ranges, (ProtobufCMessageInit)status__init, NULL, NULL,
     NULL /* reserved[123] */
 };

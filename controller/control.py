@@ -28,6 +28,8 @@ class Q(object):
         self.jobs = []
         self.thread = None
         self.results = {}
+        self.results_event = threading.Event()
+        self.socket_event = threading.Event()
         socket.setdefaulttimeout(1)
         if nodes_file:
             self.nodes = self.load_nodes(nodes_file)
@@ -42,8 +44,10 @@ class Q(object):
         logger.info('Starting job scheduler.')
         self.setup_socket()
         self.start_jobs()
+        self.socket_event.clear()
         self.thread = threading.Thread(target=self.listen)
         self.thread.start()
+        self.socket_event.wait()
 
     def start_jobs(self):
         """
@@ -60,6 +64,7 @@ class Q(object):
         if node_id in self.nodes:
             self.jobs.append(job)
             self.nodes[node_id].add_job(job)
+            print "Successfully added job"
             self.nodes[node_id].next_job() # run job if idle
         else:
             logger.error('Cannot add job to node %s as it does not exist.' % node_id)
@@ -79,6 +84,7 @@ class Q(object):
         thread to handle it.
         """
         self.sock.listen(backlog)
+        self.socket_event.set()
         logger.info('Currently listening on (%s, %s) for any statuses.' % (str(self.ip), str(self.port)))
         while self.sock is not None:
             try:
@@ -87,6 +93,7 @@ class Q(object):
                                  args=(client_sock, client_addr)).start()
             except:
                 pass
+        print "Done Listening"
 
     def handle_client(self, sock, addr):
         """
@@ -110,6 +117,7 @@ class Q(object):
                 self.nodes[ip_str].finish_current_job()
                 self.nodes[ip_str].next_job()
             if status.type == status_pb2.Status.STATS:
+                print "Received stats"
                 self.nodes[ip_str].finish_current_job()
                 self.nodes[ip_str].next_job()
                 for ps in status.stats:
@@ -140,8 +148,11 @@ class Q(object):
                             'tx_mpps_mean':           ps.avg_txmpps,
                             'tx_mpps_std':            ps.std_txmpps
                     }
+                self.results_event.set()
+                print "Set event"
             if status.type == status_pb2.Status.FAIL:
                 logger.info('Node %s successfully completed job.' % self.nodes[ip_str].addr())
+                self.results_event.set()
         except:
             logger.info('Failed to read status from node %s' % self.nodes[ip_str].addr())
             pass
@@ -272,6 +283,7 @@ class Node(object):
             # finish job and set working job
             self.pending_jobs.task_done()
             self.working_job = job
+            print "Successfully running job"
             logger.info("Successfully sent job to node %s." % self.addr())
         except Queue.Empty as e:
             logger.info("No pending jobs for node %s." % self.addr())

@@ -9,7 +9,7 @@ gen_pkt_size(struct pktgen_config *config)
 }
 
 static void
-stats(double *start_time, struct rate_stats *r_stats)
+stats(double *start_time, struct rate_stats *r_stats, unsigned flag)
 {
     double now = get_time_msec();
     double elapsed = (now - *start_time) / 1000;
@@ -54,9 +54,10 @@ stats(double *start_time, struct rate_stats *r_stats)
     if (elapsed >= 1.0f) {
 #if GEN_DEBUG
         printf(
-            "Core %u: tx_pps: %.0f tx_gbps: %.2f rx_pps: %.0f rx_gbps: %.2f\n",
+            "Core %u: tx_pps: %.0f tx_gbps: %.2f rx_pps: %.0f rx_gbps: %.2f\n "
+            "flag: %d",
             rte_lcore_id(), tx_pps, tx_bps / 1000000000.0f, rx_pps,
-            rx_bps / 1000000000.0f);
+            rx_bps / 1000000000.0f, flag & FLAG_WAIT);
 #endif
         r_stats->rx_pkts = 0;
         r_stats->rx_bytes = 0;
@@ -252,8 +253,7 @@ worker_loop(struct pktgen_config *config)
     printf("\nCore %u running.\n", rte_lcore_id());
 
     /* Flush the RX queue */
-    printf("Core %u: Flusing port %u RX queue\n", rte_lcore_id(),
-           config->port);
+    printf("Core %u: Flusing port %u RX queue\n", rte_lcore_id(), config->port);
     while (rte_eth_rx_queue_count(config->port, 0) > 0) {
         nb_rx = rte_eth_rx_burst(config->port, 0, bufs, config->rx_ring_size);
         for (i = 0; i < nb_rx; i++) {
@@ -287,7 +287,7 @@ worker_loop(struct pktgen_config *config)
                unlikely((now = get_time_msec()) - config->start_time <
                         config->duration)) {
             if (now - config->start_time > config->warmup) {
-                stats(&start_time, &r_stats);
+                stats(&start_time, &r_stats, config->flags);
             }
 
             uint64_t exp_bytes =
