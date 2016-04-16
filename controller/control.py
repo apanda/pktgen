@@ -64,7 +64,6 @@ class Q(object):
         if node_id in self.nodes:
             self.jobs.append(job)
             self.nodes[node_id].add_job(job)
-            print "Successfully added job"
             self.nodes[node_id].next_job() # run job if idle
         else:
             logger.error('Cannot add job to node %s as it does not exist.' % node_id)
@@ -93,7 +92,6 @@ class Q(object):
                                  args=(client_sock, client_addr)).start()
             except:
                 pass
-        print "Done Listening"
 
     def handle_client(self, sock, addr):
         """
@@ -117,7 +115,6 @@ class Q(object):
                 self.nodes[ip_str].finish_current_job()
                 self.nodes[ip_str].next_job()
             if status.type == status_pb2.Status.STATS:
-                print "Received stats"
                 self.nodes[ip_str].finish_current_job()
                 self.nodes[ip_str].next_job()
                 for ps in status.stats:
@@ -148,8 +145,8 @@ class Q(object):
                             'tx_mpps_mean':           ps.avg_txmpps,
                             'tx_mpps_std':            ps.std_txmpps
                     }
+                print "Setting event"
                 self.results_event.set()
-                print "Set event"
             if status.type == status_pb2.Status.FAIL:
                 logger.info('Node %s successfully completed job.' % self.nodes[ip_str].addr())
                 self.results_event.set()
@@ -283,7 +280,6 @@ class Node(object):
             # finish job and set working job
             self.pending_jobs.task_done()
             self.working_job = job
-            print "Successfully running job"
             logger.info("Successfully sent job to node %s." % self.addr())
         except Queue.Empty as e:
             logger.info("No pending jobs for node %s." % self.addr())

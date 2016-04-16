@@ -8,6 +8,7 @@
 #include <rte_cycles.h>
 #include <rte_ether.h>
 #include <rte_mbuf.h>
+#include <rte_ethdev.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
@@ -17,7 +18,7 @@
 
 typedef struct rte_mbuf **mbuf_array_t;
 
-struct rte_mbuf tx_mbuf_template[RTE_MAX_LCORE];
+struct rte_mbuf tx_mbuf_template;
 
 #if 0
 static void
@@ -116,7 +117,7 @@ get_time_msec(void)
 static inline struct rte_mbuf *
 current_template(void)
 {
-    return &tx_mbuf_template[rte_socket_id()];
+    return &tx_mbuf_template;
 }
 
 static inline int
@@ -199,4 +200,9 @@ mbuf_alloc_bulk(struct rte_mempool *mp, mbuf_array_t array, uint16_t len,
     return 0;
 }
 
+static inline int
+eth_dev_scoket_id(uint8_t port) {
+	int socket_id = rte_eth_dev_socket_id(port);
+	return socket_id > 0 ? socket_id : 1;
+}
 #endif

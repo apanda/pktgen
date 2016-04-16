@@ -15,7 +15,7 @@ port_init(uint8_t port, struct pktgen_config *config UNUSED)
     snprintf(name, sizeof(name), "RX%02u:%02u", port, (unsigned)0);
     struct rte_mempool *rx_mp = rte_pktmbuf_pool_create(
         name, 2 * GEN_DEFAULT_RX_RING_SIZE, 0, 0, RTE_MBUF_DEFAULT_BUF_SIZE,
-        rte_eth_dev_socket_id(port));
+        eth_dev_scoket_id(port));
     if (rx_mp == NULL) {
         rte_exit(EXIT_FAILURE, "Cannot create RX mbuf pool: %s\n",
                  rte_strerror(rte_errno));
@@ -24,14 +24,14 @@ port_init(uint8_t port, struct pktgen_config *config UNUSED)
     snprintf(name, sizeof(name), "TX%02u:%02u", port, (unsigned)0);
     struct rte_mempool *tx_mp = rte_pktmbuf_pool_create(
         name, 2 * GEN_DEFAULT_TX_RING_SIZE, 0, 0, RTE_MBUF_DEFAULT_BUF_SIZE,
-        rte_eth_dev_socket_id(port));
+        eth_dev_scoket_id(port));
     if (tx_mp == NULL) {
         rte_exit(EXIT_FAILURE, "Cannot create TX mbuf pool: %s\n",
                  rte_strerror(rte_errno));
     }
 
     struct rte_mbuf *mbuf = rte_pktmbuf_alloc(tx_mp);
-    tx_mbuf_template[0] = *mbuf;
+    tx_mbuf_template = *mbuf;
     rte_pktmbuf_free(mbuf);
 
     if (port >= rte_eth_dev_count()) {
@@ -44,9 +44,8 @@ port_init(uint8_t port, struct pktgen_config *config UNUSED)
     }
 
     for (q = 0; q < rx_rings; q++) {
-        retval =
-            rte_eth_rx_queue_setup(port, q, GEN_DEFAULT_RX_RING_SIZE,
-                                   rte_eth_dev_socket_id(port), NULL, rx_mp);
+        retval = rte_eth_rx_queue_setup(port, q, GEN_DEFAULT_RX_RING_SIZE,
+                                        eth_dev_scoket_id(port), NULL, rx_mp);
         if (retval != 0) {
             return retval;
         }
@@ -54,7 +53,7 @@ port_init(uint8_t port, struct pktgen_config *config UNUSED)
 
     for (q = 0; q < tx_rings; q++) {
         retval = rte_eth_tx_queue_setup(port, q, GEN_DEFAULT_TX_RING_SIZE,
-                                        rte_eth_dev_socket_id(port), NULL);
+                                        eth_dev_scoket_id(port), NULL);
         if (retval != 0) {
             return retval;
         }
