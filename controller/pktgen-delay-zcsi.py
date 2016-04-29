@@ -115,7 +115,9 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     start_zcsi = "/opt/e2d2/scripts/start-zcsi.sh start 8 6 %d"
     stop_zcsi = "/opt/e2d2/scripts/start-zcsi.sh stop"
     o, e = exec_command_and_wait(conn, stop_zcsi)
-    for delay in xrange(0, 5000, 50):
+    kill_all = "/opt/e2d2/scripts/kill-all.sh"
+    o, e = exec_command_and_wait(conn, kill_all)
+    for delay in xrange(0, 2000, 50):
         try:
             success = False
             while not success:
@@ -153,7 +155,13 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
             o, e = exec_command_and_wait(conn, stop_zcsi)
             print "Out ", '\n\t'.join(o)
             print "Err ", '\n\t'.join(e)
+            if handle:
+               handle.kill()
+               handle.wait()
             raise
+    if handle:
+       handle.kill()
+       handle.wait()
  
 def main():
     q_ip = 'localhost'

@@ -44,14 +44,13 @@ def add_server(q, server, port):
     q.add_node(Node(key, server, port))
     return key
 
-def run_flow(q, key):
-    q.results_event.clear()
+def run_flow(q, key, size):
     q.add_job(key, Job(1, {
         "tx_rate": 10000,
         "duration": 24 * 60 * 60 * 1000,
-        "warmup": 5,
+        "warmup": 2,
         "num_flows": 1,
-        "size_min": 64, "size_max": 64,
+        "size_min": size, "size_max": size,
         "life_min": 60*1000, "life_max": 24*60*60*1000,
         "port_min": 80, "port_max": 80,
         "latency": False,
@@ -108,63 +107,67 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     handle = None
     conn = connect_test_machine(server)
     key = add_server(q, pgen_server, pgen_port)
-    count = 2
     measure_time = 20 # seconds
     start_bess = \
-            "/opt/e2d2/scripts/start-bess-container.sh 4,5 %d %d"%(count, count)
+            "/opt/e2d2/scripts/start-bess-container.sh 4,5 %d %d"
     start_container = \
-    '/opt/e2d2/container/run-container.sh start fancy %d 8 6 "' + \
-           ' '.join(map(lambda c: "bess:rte_ring%d"%c, range(count))) + '"'
+    '/opt/e2d2/container/run-container.sh start fancy %d 8 6'
     stop_container = "/opt/e2d2/container/run-container.sh stop fancy"
     o, e = exec_command_and_wait(conn, stop_container)
     kill_all = "/opt/e2d2/scripts/kill-all.sh"
     o, e = exec_command_and_wait(conn, kill_all)
-    for delay in xrange(0, 2000, 50):
-        try:
-            success = False
-            while not success:
-                success = True
-                handle = restart_pktgen(handle, pgen_port, "81:00", count)
-                print "Starting BESS"
-                o, e = exec_command_and_wait(conn, start_bess)
-                print "Out ", '\n\t'.join(o)
-                print "Err ", '\n\t'.join(e)
-                print "Starting container"
-                o,e = exec_command_and_wait(conn, start_container%(delay))
-                print "Out ", '\n\t'.join(o)
-                print "Err ", '\n\t'.join(e)
-                run_flow(q, key)
-                print "Measuring"
-                time.sleep(measure_time)
-                # output_data(handle)
-                print "Stopping"
-                m = stop_and_measure(q, key)
-                rx_mpps_mean = 0
-                tx_mpps_mean = 0
-                for v in m.itervalues():
-                    for measure in v.itervalues():
-                        if measure['rx_mpps_mean'] > 0.0: 
-                            rx_mpps_mean += measure['rx_mpps_mean']
-                            tx_mpps_mean += measure['tx_mpps_mean']
+    sizes = [60, 128, 256, 512, 768, 1024, 1200, 1500]
+    for n_port in xrange(1, 5):
+        for size in sizes:
+            try:
+                success = False
+                while not success:
+                    success = True
+                    handle = restart_pktgen(handle, pgen_port, "81:00", n_port)
+                    print "Starting BESS"
+                    o, e = exec_command_and_wait(conn, start_bess%(n_port, \
+                        n_port))
+                    print "Out ", '\n\t'.join(o)
+                    print "Err ", '\n\t'.join(e)
+                    print "Starting container"
+                    start_cmd = start_container%(0) + ' "' + \
+                               ' '.join(map(lambda c: "bess:rte_ring%d"%c, \
+                               range(n_port))) + '"'
+                    o,e = exec_command_and_wait(conn, start_cmd)
+                    print "Out ", '\n\t'.join(o)
+                    print "Err ", '\n\t'.join(e)
+                    run_flow(q, key, size)
+                    print "Measuring"
+                    time.sleep(measure_time)
+                    # output_data(handle)
+                    print "Stopping"
+                    m = stop_and_measure(q, key)
+                    rx_mpps_mean = 0
+                    tx_mpps_mean = 0
+                    for v in m.itervalues():
+                        for measure in v.itervalues():
+                            if measure['rx_mpps_mean'] > 0.0: 
+                                rx_mpps_mean += measure['rx_mpps_mean']
+                                tx_mpps_mean += measure['tx_mpps_mean']
+                    o, e = exec_command_and_wait(conn, stop_container)
+                    print "Out ", '\n\t'.join(o)
+                    print "Err ", '\n\t'.join(e)
+                    if tx_mpps_mean < 1.0:
+                        success = False
+                        print "Restarting"
+                    else:
+                        print size, n_port, rx_mpps_mean, tx_mpps_mean
+                        print >>out, size, n_port, rx_mpps_mean, tx_mpps_mean
+                        out.flush()
+            except:
+                print "Caught exception"
                 o, e = exec_command_and_wait(conn, stop_container)
                 print "Out ", '\n\t'.join(o)
                 print "Err ", '\n\t'.join(e)
-                if tx_mpps_mean < 1.0:
-                    success = False
-                    print "Restarting"
-                else:
-                    print delay, rx_mpps_mean, tx_mpps_mean
-                    print >>out, delay, rx_mpps_mean, tx_mpps_mean
-                    out.flush()
-        except:
-            print "Caught exception"
-            o, e = exec_command_and_wait(conn, stop_container)
-            print "Out ", '\n\t'.join(o)
-            print "Err ", '\n\t'.join(e)
-            if handle:
-               handle.kill()
-               handle.wait()
-            raise
+                if handle:
+                   handle.kill()
+                   handle.wait()
+                raise
     if handle:
        handle.kill()
        handle.wait()

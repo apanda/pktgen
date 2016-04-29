@@ -66,25 +66,26 @@ def stop_and_measure(q, key):
     measure = q.results
     return measure
 
-def restart_pktgen(handle, port, nic):
+def restart_pktgen(handle, port, nic, count):
     if handle:
         handle.kill()
         handle.wait()
     print "Booting"
     OUT_FILE = "/tmp/pktgen.out"
     f = open(OUT_FILE, 'w')
-    handle = subprocess.Popen(["stdbuf", \
-                               "-o0", \
-                               "-e0", \
-                               "bin/pktgen", \
-                               "-c", "0x1f0", \
-                               "-w", str(nic+".0"), \
-                               "-w", str(nic+".1"), \
-                               "-w", str(nic+".2"), \
-                               "-w", str(nic+".3"), \
-                               "--", str(port)], \
-                               stdout=f, \
-                               stderr=f)
+    args = ["stdbuf", \
+            "-o0", \
+            "-e0", \
+            "bin/pktgen", \
+            "-c", "0xff00"]
+    for n in xrange(count):
+        args.append("-w")
+        args.append("%s.%d"%(nic, n))
+    args.append("--")
+    args.append(str(port))
+    handle = subprocess.Popen(args, \
+                              stdout=f, \
+                              stderr=f)
     with open(OUT_FILE, 'r') as f2:
         while True:
             l = f2.readline()
@@ -109,17 +110,22 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     conn = connect_test_machine(server)
     key = add_server(q, pgen_server, pgen_port)
     measure_time = 15 + WARMUP_TIME# seconds
-    start_ovs = "/opt/e2d2/scripts/start-ovs-container-size.sh"
+    count = 2
+    start_ovs = "/opt/e2d2/scripts/start-ovs-container-size.sh 8 30 %d"%(count)
     start_container = \
-    '/opt/e2d2/container/run-container.sh start fancy %d 8 6 "ovs:0 ovs:1 ovs:2 ovs:3"'
+    '/opt/e2d2/container/run-container.sh start fancy %d 8 6 "' +\
+            ' '.join(map(lambda c: 'ovs:%d'%c, range(count))) + '"'
+            # "ovs:0 ovs:1 ovs:2 ovs:3"'
     stop_container = "/opt/e2d2/container/run-container.sh stop fancy"
     o, e = exec_command_and_wait(conn, stop_container)
-    for delay in xrange(0, 4150, 50):
+    kill_all = "/opt/e2d2/scripts/kill-all.sh"
+    o, e = exec_command_and_wait(conn, kill_all)
+    for delay in xrange(0, 2000, 50):
         try:
             success = False
             while not success:
                 success = True
-                handle = restart_pktgen(handle, pgen_port, "81:00")
+                handle = restart_pktgen(handle, pgen_port, "81:00", count)
                 print "Starting OVS"
                 o, e = exec_command_and_wait(conn, start_ovs)
                 print "Out ", '\n\t'.join(o)
@@ -156,7 +162,13 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
             o, e = exec_command_and_wait(conn, stop_container)
             print "Out ", '\n\t'.join(o)
             print "Err ", '\n\t'.join(e)
+            if handle:
+               handle.kill()
+               handle.wait()
             raise
+    if handle:
+       handle.kill()
+       handle.wait()
  
 def main():
     q_ip = 'localhost'

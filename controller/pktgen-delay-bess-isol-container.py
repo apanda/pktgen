@@ -111,12 +111,17 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     conn = connect_test_machine(server)
     key = add_server(q, pgen_server, pgen_port)
     measure_time = 20 # seconds
-    start_bess = "/opt/e2d2/scripts/start-bess-container-isol.sh"
+    count = 2
+    start_bess = \
+            "/opt/e2d2/scripts/start-bess-container-isol.sh 4,5 %d %d"%(count, count)
     start_container = \
-    '/opt/e2d2/container/run-container.sh start fancy %d 8 6 "bess:rte_ring0 bess:rte_ring1 bess:rte_ring2 bess:rte_ring3"'
+    '/opt/e2d2/container/run-container.sh start fancy %d 8 6 "' + \
+           ' '.join(map(lambda c: "bess:rte_ring%d"%c, range(count))) + '"'
     stop_container = "/opt/e2d2/container/run-container.sh stop fancy"
     o, e = exec_command_and_wait(conn, stop_container)
-    for delay in xrange(0, 5000, 50):
+    kill_all = "/opt/e2d2/scripts/kill-all.sh"
+    o, e = exec_command_and_wait(conn, kill_all)
+    for delay in xrange(0, 2000, 50):
         try:
             success = False
             while not success:
@@ -158,7 +163,13 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
             o, e = exec_command_and_wait(conn, stop_container)
             print "Out ", '\n\t'.join(o)
             print "Err ", '\n\t'.join(e)
+            if handle:
+               handle.kill()
+               handle.wait()
             raise
+    if handle:
+       handle.kill()
+       handle.wait()
  
 def main():
     q_ip = 'localhost'

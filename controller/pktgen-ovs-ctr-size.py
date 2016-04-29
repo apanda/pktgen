@@ -44,11 +44,12 @@ def add_server(q, server, port):
     q.add_node(Node(key, server, port))
     return key
 
+WARMUP_TIME=5
 def run_flow(q, key, size):
     q.add_job(key, Job(1, {
         "tx_rate": 10000,
         "duration": 24 * 60 * 60 * 1000,
-        "warmup": 2,
+        "warmup": WARMUP_TIME,
         "num_flows": 1,
         "size_min": size, "size_max": size,
         "life_min": 60*1000, "life_max": 24*60*60*1000,
@@ -65,25 +66,26 @@ def stop_and_measure(q, key):
     measure = q.results
     return measure
 
-def restart_pktgen(handle, port, nic):
+def restart_pktgen(handle, port, nic, count):
     if handle:
         handle.kill()
         handle.wait()
     print "Booting"
     OUT_FILE = "/tmp/pktgen.out"
     f = open(OUT_FILE, 'w')
-    handle = subprocess.Popen(["stdbuf", \
-                               "-o0", \
-                               "-e0", \
-                               "bin/pktgen", \
-                               "-c", "0x1f0", \
-                               "-w", str(nic+".0"), \
-                               "-w", str(nic+".1"), \
-                               "-w", str(nic+".2"), \
-                               "-w", str(nic+".3"), \
-                               "--", str(port)], \
-                               stdout=f, \
-                               stderr=f)
+    args = ["stdbuf", \
+            "-o0", \
+            "-e0", \
+            "bin/pktgen", \
+            "-c", "0xff00"]
+    for n in xrange(count):
+        args.append("-w")
+        args.append("%s.%d"%(nic, n))
+    args.append("--")
+    args.append(str(port))
+    handle = subprocess.Popen(args, \
+                              stdout=f, \
+                              stderr=f)
     with open(OUT_FILE, 'r') as f2:
         while True:
             l = f2.readline()
@@ -108,58 +110,74 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     conn = connect_test_machine(server)
     key = add_server(q, pgen_server, pgen_port)
     measure_time = 20 # seconds
-    start_ovs = "/opt/e2d2/scripts/start-ovs-container-size.sh"
+    start_ovs = "/opt/e2d2/scripts/start-ovs-container-size.sh 8 30 %d"
     start_container = \
-    '/opt/e2d2/container/run-container.sh start fancy %d 8 6 "ovs:0 ovs:1 ovs:2 ovs:3"'
+    '/opt/e2d2/container/run-container.sh start fancy %d 8 6'
+            # 
     stop_container = "/opt/e2d2/container/run-container.sh stop fancy"
     o, e = exec_command_and_wait(conn, stop_container)
+    kill_all = "/opt/e2d2/scripts/kill-all.sh"
+    o, e = exec_command_and_wait(conn, kill_all)
+    kill_all = "/opt/e2d2/scripts/kill-all.sh"
+    o, e = exec_command_and_wait(conn, kill_all)
     sizes = [60, 128, 256, 512, 768, 1024, 1200, 1500]
+    n_restarts = 0
     try:
-        for size in sizes:
-            try:
-                success = False
-                while not success:
-                    success = True
-                    handle = restart_pktgen(handle, pgen_port, "81:00")
-                    print "Starting OVS"
-                    o, e = exec_command_and_wait(conn, start_ovs)
-                    print "Out ", '\n\t'.join(o)
-                    print "Err ", '\n\t'.join(e)
-                    print "Starting container"
-                    o,e = exec_command_and_wait(conn, start_container%(0))
-                    print "Out ", '\n\t'.join(o)
-                    print "Err ", '\n\t'.join(e)
-                    run_flow(q, key, size)
-                    print "Measuring"
-                    lines = 0
-                    time.sleep(measure_time)
-                    # output_data(handle)
-                    print "Stopping"
-                    m = stop_and_measure(q, key)
-                    print "Stopped measurement"
-                    rx_mpps_mean = 0
-                    tx_mpps_mean = 0
-                    for v in m.itervalues():
-                        for measure in v.itervalues():
-                            if measure['rx_mpps_mean'] > 0.0: 
-                                rx_mpps_mean += measure['rx_mpps_mean']
-                                tx_mpps_mean += measure['tx_mpps_mean']
+        for n_port in xrange(1, 5):
+            for size in sizes:
+                try:
+                    success = False
+                    while not success:
+                        success = True
+                        handle = restart_pktgen(handle, pgen_port, "81:00", \
+                                n_port)
+                        print "Starting OVS"
+                        o, e = exec_command_and_wait(conn, start_ovs%(n_port))
+                        print "Out ", '\n\t'.join(o)
+                        print "Err ", '\n\t'.join(e)
+                        print "Starting container"
+                        run_container = start_container%(0) + ' "' + \
+                            ' '.join(map(lambda c: 'ovs:%d'%c, \
+                                    range(n_port))) + '"'
+                        o,e = exec_command_and_wait(conn, run_container)
+                        print "Out ", '\n\t'.join(o)
+                        print "Err ", '\n\t'.join(e)
+                        run_flow(q, key, size)
+                        print "Measuring"
+                        lines = 0
+                        time.sleep(measure_time + WARMUP_TIME)
+                        # output_data(handle)
+                        print "Stopping"
+                        m = stop_and_measure(q, key)
+                        print "Stopped measurement"
+                        rx_mpps_mean = 0
+                        tx_mpps_mean = 0
+                        for v in m.itervalues():
+                            for measure in v.itervalues():
+                                if measure['rx_mpps_mean'] > 0.0: 
+                                    rx_mpps_mean += measure['rx_mpps_mean']
+                                    tx_mpps_mean += measure['tx_mpps_mean']
+                        o, e = exec_command_and_wait(conn, stop_container)
+                        print "Out ", '\n\t'.join(o)
+                        print "Err ", '\n\t'.join(e)
+                        if tx_mpps_mean < 0.5:
+                            n_restarts += 1
+                            if n_restarts < 2:
+                                success = False
+                                print "Restarting", tx_mpps_mean
+                                continue
+                            else:
+                                print "WARN WARN WARN Should restart but not going to"
+                        print size, n_port, rx_mpps_mean, tx_mpps_mean
+                        print >>out, size, n_port, rx_mpps_mean, tx_mpps_mean
+                        n_restarts = 0
+                        out.flush()
+                except:
+                    print "Caught exception"
                     o, e = exec_command_and_wait(conn, stop_container)
                     print "Out ", '\n\t'.join(o)
                     print "Err ", '\n\t'.join(e)
-                    if tx_mpps_mean < 1.0:
-                        success = False
-                        print "Restarting", tx_mpps_mean
-                    else:
-                        print size, rx_mpps_mean, tx_mpps_mean
-                        print >>out, size, rx_mpps_mean, tx_mpps_mean
-                        out.flush()
-            except:
-                print "Caught exception"
-                o, e = exec_command_and_wait(conn, stop_container)
-                print "Out ", '\n\t'.join(o)
-                print "Err ", '\n\t'.join(e)
-                raise
+                    raise
     finally:
         if handle:
             handle.kill()

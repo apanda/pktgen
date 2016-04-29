@@ -116,8 +116,14 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     start_container = "/opt/e2d2/scripts/start-bess-vm.sh start %d | tee /tmp/start"
     stop_container = "/opt/e2d2/scripts/start-bess-vm.sh stop"
     stop_container_hard = "/opt/e2d2/scripts/start-bess-vm.sh hardkill"
+    print "Killing container"
     o, e = exec_command_and_wait(conn, stop_container)
-    for delay in xrange(0, 5000, 50):
+    print "Killed container"
+    print "Killing all"
+    kill_all = "/opt/e2d2/scripts/kill-all.sh"
+    o, e = exec_command_and_wait(conn, kill_all)
+    print "Killed all"
+    for delay in xrange(0, 2000, 50):
         try:
             success = False
             while not success:
@@ -170,7 +176,13 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
             o, e = exec_command_and_wait(conn, stop_container)
             print "Out ", '\n\t'.join(o)
             print "Err ", '\n\t'.join(e)
+            if handle:
+               handle.kill()
+               handle.wait()
             raise
+    if handle:
+       handle.kill()
+       handle.wait()
  
 def main():
     q_ip = 'localhost'
