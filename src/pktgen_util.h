@@ -1,6 +1,7 @@
 #ifndef PKTGEN_UTIL_H
 #define PKTGEN_UTIL_H 1
 
+#include "pktgen_config.h"
 #include "simd.h"
 
 #include <stdio.h>
@@ -8,19 +9,49 @@
 #include <rte_cycles.h>
 #include <rte_ether.h>
 #include <rte_mbuf.h>
-#include <rte_ethdev.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <syslog.h>
 
 #define UNUSED __attribute__((__unused__))
 #define RTE_MBUF_FROM_BADDR(ba) (((struct rte_mbuf *)(ba)) - 1)
+
+/* Adapted from Zed's Debugging Macros:
+ * http://c.learncodethehardway.org/book/ex20.html
+ */
+#if DAEMON
+#include <syslog.h>
+#define log_dbg(M, ...) \
+    syslog(LOG_DEBUG, "(%s:%d) " M, __FILE__, __LINE__, ##__VA_ARGS__)
+
+#define log_err(M, ...) \
+    syslog(LOG_ERR, "(%s:%d) " M, __FILE__, __LINE__, ##__VA_ARGS__)
+
+#define log_warn(M, ...) \
+    syslog(LOG_WARN, "(%s:%d) " M, __FILE__, __LINE__, ##__VA_ARGS__)
+
+#define log_info(M, ...) \
+    syslog(LOG_INFO, "(%s:%d) " M, __FILE__, __LINE__, ##__VA_ARGS__)
+#else
+#define log_dbg(M, ...)                                            \
+    fprintf(stderr, "[DEBUG] (%s:%d) " M "\n", __FILE__, __LINE__, \
+            ##__VA_ARGS__)
+
+#define log_err(M, ...)                                            \
+    fprintf(stderr, "[ERROR] (%s:%d) " M "\n", __FILE__, __LINE__, \
+            ##__VA_ARGS__)
+
+#define log_warn(M, ...) \
+    fprintf(stderr, "[WARN] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
+#define log_info(M, ...) \
+    fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#endif
 
 typedef struct rte_mbuf **mbuf_array_t;
 
 struct rte_mbuf tx_mbuf_template;
 
-#if 0
+#if DAEMON
 static void
 setup_daemon(void)
 {
@@ -83,10 +114,16 @@ rand_fast(uint64_t *seed)
     return next_seed >> 32;
 }
 
-static double
+static inline double
+to_double(uint32_t rnd, double low, double high)
+{
+    return low + rnd * (high - low) / (double)(UINT32_MAX);
+}
+
+static inline double
 randf(uint64_t *x, double low, double high)
 {
-    return low + (float)rand_fast(x) / ((double)(UINT64_MAX / (high - low)));
+    return to_double(rand_fast(x), low, high);
 }
 
 /* Misc. */
@@ -143,7 +180,7 @@ ether_addr_from_str(const char *str, struct ether_addr *addr)
  *    len: Length
  *    cnt: Count
  */
-static int
+static inline int
 mbuf_alloc_bulk(struct rte_mempool *mp, mbuf_array_t array, uint16_t len,
                 int cnt)
 {
@@ -200,9 +237,4 @@ mbuf_alloc_bulk(struct rte_mempool *mp, mbuf_array_t array, uint16_t len,
     return 0;
 }
 
-static inline int
-eth_dev_scoket_id(uint8_t port) {
-	int socket_id = rte_eth_dev_socket_id(port);
-	return socket_id > 0 ? socket_id : 1;
-}
 #endif

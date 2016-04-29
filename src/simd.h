@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <stdint.h>
 
 #include <x86intrin.h>
-#include <syslog.h>
 
 #define __xmm_aligned __attribute__((aligned(16)))
 #define __ymm_aligned __attribute__((aligned(32)))

@@ -7,7 +7,7 @@ import status_pb2
 def start_traffic(q, server_id, tx_mbps, dur_sec):
     try:
         dur_msec = int(dur_sec * 1000)
-        q.add_job(server_id, Job(1, {
+        q.add_job(server_id, Request(0, [Job({
             "tx_rate": tx_mbps,
             "duration": dur_msec,
             "warmup": 10,
@@ -18,16 +18,20 @@ def start_traffic(q, server_id, tx_mbps, dur_sec):
             "life_max": 4500,
             "port_min": 1024,
             "port_max": 2048,
-            "latency": True}))
+            "latency": True,
+             "src_mac": "68:05:ca:00:01",
+             "dst_mac": "68:05:ca:00:02"})]))
         time.sleep(600)
         print "Issuing stop"
         q.results_event.clear()
-        q.add_job(server_id, Job(0, {"stop": True, "print": True}))
+        q.add_job(server_id, Request(0, [Job({"stop": True, "print": True, \
+            "port": "00:00:00:00:00:00"})]))
     except:
-        q.add_job(server_id, Job(0, {"stop": True, "print": True}))
+        q.add_job(server_id, Request(0, [Job({"stop": True, "print": True, \
+                "port": "00:00:00:00:00:00"})]))
     finally:
         print "Waiting for event"
-        q.results_event.wait(10)
+        q.results_event.wait(5)
         print "Done Waiting for event"
         m = q.results
         rx_mpps_mean = 0
