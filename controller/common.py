@@ -56,7 +56,9 @@ def run_flow_dynamic(q, key, size=MIN_SIZE, \
     time.sleep(warmup + duration + 0.15)
 
 def measure_pkts(q, key):
-    time.sleep(0.2)
+    q.add_job(key, Request(0, [Job({"print": True, \
+        "port": "00:00:00:00:00:00"})]))
+    time.sleep(0.5)
     measure = q.results
     return measure
 
