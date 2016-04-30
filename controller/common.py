@@ -79,9 +79,10 @@ def restart_pktgen(handle, port, nic, count):
     handle = subprocess.Popen(args, \
                               stdout=f, \
                               stderr=f)
+    shibbolet = "Port %d MAC"%(count - 1)
     with open(OUT_FILE, 'r') as f2:
         while True:
             l = f2.readline()
-            if l.startswith("Init core"):
+            if shibbolet in l:
                 return handle
 
