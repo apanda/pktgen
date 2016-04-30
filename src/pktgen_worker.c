@@ -124,8 +124,8 @@ update_stats(struct pktgen_config *config UNUSED, struct rate_stats *s,
 
 #if GEN_DEBUG
     log_info("[lcore=%d] rx/tx stats: mpps=%0.3f/%0.3f wire_mbps=%0.1f/%0.1f",
-             config->lcore_id, rx_pps / 1000000, tx_pps / 1000000,
-             rxwire / 1000000, txwire / 1000000);
+	     config->lcore_id, rx_pps / 1000000, tx_pps / 1000000,
+	     rxwire / 1000000, txwire / 1000000);
 #endif
 }
 
@@ -206,7 +206,6 @@ generate_packet(struct rte_mbuf *buf, struct rate_stats *r_stats,
         udp_hdr = (struct udp_hdr *)(ip_hdr + 1);
         udp_hdr->src_port = sport;
         udp_hdr->dst_port = dport;
-        udp_hdr->dgram_cksum = rte_ipv4_phdr_cksum(ip_hdr, buf->ol_flags);
         udp_hdr->dgram_len = rte_cpu_to_be_16(
             pkt_size - sizeof(struct ether_hdr) - sizeof(*ip_hdr));
         ptr = (uint8_t *)(udp_hdr + 1);
@@ -333,7 +332,7 @@ worker_loop(struct pktgen_config *config)
     struct rate_stats *r_stats =
         rte_malloc("rate_stats", sizeof(struct rate_stats), 0);
     int wamrup;
-    int dynamic_tx_rate;
+    int dynamic_tx_rate = 0;
 
     config->run_id = 1;
 
@@ -391,21 +390,25 @@ worker_loop(struct pktgen_config *config)
 
                 if (unlikely(wamrup && dynamic_tx_rate &&
                              r_stats->avg_txbps > r_stats->avg_rxbps)) {
-                    double factor = RTE_MIN(
-                        1.05,
-                        1 +
-                            0.5 *
-                                (r_stats->avg_txbps / r_stats->avg_rxbps - 1));
-                    config->tx_rate = factor * r_stats->avg_rxbps / 1000000;
-                    log_info("adjusting txrate %d", config->tx_rate);
-                    reset_stats(config, r_stats);
-                    if (config->tx_rate > 0) {
-                        tx_time = 1000000 *
-                                  (config->size_max * 8 * BURST_SIZE) /
-                                  (1000 * config->tx_rate);
-                    } else {
-                        tx_time = 0;
-                    }
+                    if ((r_stats->avg_txbps - r_stats->avg_rxbps) 
+                    		    / r_stats->avg_txbps > 0.01) {
+			    double factor = RTE_MIN(
+				1.05,
+				1 +
+				    0.5 *
+					(r_stats->avg_txbps / r_stats->avg_rxbps - 1));
+			    config->tx_rate = factor * r_stats->avg_rxbps / 1000000;
+			    log_info("adjusting txrate %d %f %f", config->tx_rate,
+					    r_stats->avg_txbps, r_stats->avg_rxbps);
+			    reset_stats(config, r_stats);
+			    if (config->tx_rate > 0) {
+				tx_time = 1000000 *
+					  (config->size_max * 8 * BURST_SIZE) /
+					  (1000 * config->tx_rate);
+			    } else {
+				tx_time = 0;
+			    }
+		    }
                 }
 
                 start_time = get_time_msec();

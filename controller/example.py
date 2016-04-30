@@ -10,28 +10,28 @@ def start_traffic(q, server_id, tx_mbps, dur_sec):
         q.add_job(server_id, Request(0, [Job({
             "tx_rate": tx_mbps,
             "duration": dur_msec,
-            "warmup": 10,
-            "num_flows": 100,
-            "size_min": 60,
-            "size_max": 60,
-            "life_min": 1000,
-            "life_max": 4500,
+            "warmup": 1 * 1000,
+            "num_flows": 1,
+            "size_min": 64,
+            "size_max": 64,
+            "life_min": dur_sec* 1000,
+            "life_max": dur_sec * 1000,
             "port_min": 1024,
             "port_max": 2048,
             "latency": True,
              "src_mac": "68:05:ca:00:01",
              "dst_mac": "68:05:ca:00:02"})]))
-        time.sleep(600)
-        print "Issuing stop"
+        time.sleep(dur_sec + 2)
+        print "Issuing print"
         q.results_event.clear()
-        q.add_job(server_id, Request(0, [Job({"stop": True, "print": True, \
+        q.add_job(server_id, Request(0, [Job({"print": True, \
             "port": "00:00:00:00:00:00"})]))
     except:
         q.add_job(server_id, Request(0, [Job({"stop": True, "print": True, \
                 "port": "00:00:00:00:00:00"})]))
     finally:
         print "Waiting for event"
-        q.results_event.wait(5)
+        time.sleep(1)
         print "Done Waiting for event"
         m = q.results
         rx_mpps_mean = 0
@@ -53,7 +53,7 @@ def main():
     q.add_node(Node(server_id, server_ip, server_port))
     print("Starting traffic. Press ctrl + c to stop")
     # Generate 1 10gbps flow of 64B packets for 10 seconds
-    start_traffic(q, server_id, 14000, 640000)
+    start_traffic(q, server_id, -1, 15)
     q.stop()
 
 if __name__ == '__main__':
