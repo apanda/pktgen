@@ -66,7 +66,7 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                         print "Restarting"
                         continue
                     print "VM started"
-                    run_flow_dynamic(q, key, size, DURATION, WARMUP)
+                    run_flow_dynamic(q, key, size, DURATION, WARMUP_TIME)
                     print "Stopping"
                     m = measure_pkts(q, key)
                     rx_mpps_mean = 0

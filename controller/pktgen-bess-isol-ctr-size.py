@@ -48,7 +48,6 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                 success = False
                 while not success:
                     success = True
-                    handle = restart_pktgen(handle, pgen_port, "81:00", n_port)
                     print "Starting BESS"
                     o, e = exec_command_and_wait(conn, start_bess%(n_port,
                         n_port))
@@ -62,7 +61,9 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                     print "Out ", '\n\t'.join(o)
                     print "Err ", '\n\t'.join(e)
                     print "Measuring"
-                    run_flow_dynamic(q, key, size, DURATION, WARMUP)
+                    handle = restart_pktgen(handle, pgen_port, "81:00", n_port)
+                    time.sleep(0.1)
+                    run_flow_dynamic(q, key, size, DURATION, WARMUP_TIME)
                     print "Stopping"
                     m = measure_pkts(q, key)
                     rx_mpps_mean = 0

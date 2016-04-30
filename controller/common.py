@@ -30,6 +30,10 @@ def exec_command_and_wait(conn, cmd):
     e = list(e)
     return (o, e)
 
+def exec_command_noblock(conn, cmd):
+    i, o, e = conn.exec_command(cmd)
+    return (o, e)
+
 def add_server(q, server, port):
     key = "%s_%d"%(server, port)
     q.add_node(Node(key, server, port))

@@ -69,6 +69,7 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                     print "Err ", '\n\t'.join(e)
                     if tx_mpps_mean < 1.0:
                         success = False
+                        print  tx_mpps_mean, rx_mpps_mean
                         print "Restarting"
                     else:
                         print size, n_ports, rx_mpps_mean, tx_mpps_mean

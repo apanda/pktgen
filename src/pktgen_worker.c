@@ -49,7 +49,7 @@ init_mbuf(struct rte_mbuf *buf, struct pktgen_config *config)
         udp_hdr = (struct udp_hdr *)(ip_hdr + 1);
         udp_hdr->src_port = 0xAABB;
         udp_hdr->dst_port = 0xCCDD;
-        udp_hdr->dgram_cksum = 0;
+        udp_hdr->dgram_cksum = rte_ipv4_phdr_cksum(ip_hdr, buf->ol_flags);
         udp_hdr->dgram_len = rte_cpu_to_be_16(
             pkt_size - sizeof(struct ether_hdr) - sizeof(*ip_hdr));
     } else {
@@ -88,11 +88,11 @@ update_stats(struct pktgen_config *config UNUSED, struct rate_stats *s,
     /* update tx bps mean/var */
     double delta = tx_bps - s->avg_txbps;
     s->avg_txbps += delta / s->n;
-    s->var_txbps += delta * (tx_bps - s->avg_txbps);
+    s->var_txbps += delta * (delta - s->avg_txbps);
 
     /* update tx pps mean/var */
-    delta = tx_pps - s->avg_txpps;
     s->avg_txpps += delta / s->n;
+    delta = tx_pps - s->avg_txpps;
     s->var_txpps += delta * (tx_pps - s->avg_txpps);
 
     /* update tx wire rate mean/var */
@@ -278,8 +278,11 @@ do_tx(struct pktgen_config *config, struct rate_stats *r_stats,
     uint32_t pktlen_sum[BURST_SIZE + 1];
     uint64_t exp_bytes = elapsed_current * config->tx_rate * 1000 / 8;
     uint16_t nb_tx, i;
-    int burst = (exp_bytes - r_stats->tx_bytes) /
+    int burst = ((long)exp_bytes - (long)r_stats->tx_bytes) /
                 ((r_stats->tx_bytes + 1) / (r_stats->tx_pkts + 1));
+    if (unlikely(exp_bytes <= r_stats->tx_bytes)) { 
+    	    return 0;
+    }
     burst = RTE_MIN(burst, BURST_SIZE);
 
     if (unlikely(burst <= 0 ||
@@ -364,8 +367,10 @@ worker_loop(struct pktgen_config *config)
         if (config->tx_rate == -1) {
             config->tx_rate = config->port_speed;
             dynamic_tx_rate = 1;
+            log_info("Dynamic TX is on warmup %d", config->warmup);
         } else {
             dynamic_tx_rate = 0;
+            log_info("Dynamic TX is off");
             if (config->tx_rate > 0) {
                 tx_time = 1000000 * (config->size_max * 8 * BURST_SIZE) /
                           (1000.0f * config->tx_rate);
@@ -390,13 +395,15 @@ worker_loop(struct pktgen_config *config)
 
                 if (unlikely(wamrup && dynamic_tx_rate &&
                              r_stats->avg_txbps > r_stats->avg_rxbps)) {
+                    if (r_stats->avg_rxbps == 0) {
+		           config->start_time = get_time_msec();
+		           continue;
+		    }
                     if ((r_stats->avg_txbps - r_stats->avg_rxbps) 
-                    		    / r_stats->avg_txbps > 0.01) {
+                    		    / r_stats->avg_txbps > 0.0001) {
 			    double factor = RTE_MIN(
-				1.05,
-				1 +
-				    0.5 *
-					(r_stats->avg_txbps / r_stats->avg_rxbps - 1));
+				1.25,
+				1 + 0.5 * (r_stats->avg_txbps / r_stats->avg_rxbps - 1));
 			    config->tx_rate = factor * r_stats->avg_rxbps / 1000000;
 			    log_info("adjusting txrate %d %f %f", config->tx_rate,
 					    r_stats->avg_txbps, r_stats->avg_rxbps);
