@@ -68,7 +68,7 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                 print "Measuring"
                 run_flow_dynamic(q, key)
                 print "Stopping"
-                m = measure(q, key)
+                m = measure_pkts(q, key)
                 rx_mpps_mean = 0
                 tx_mpps_mean = 0
                 for v in m.itervalues():

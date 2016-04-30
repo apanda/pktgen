@@ -62,7 +62,7 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                     print "Out ", '\n\t'.join(o)
                     print "Err ", '\n\t'.join(e)
                     run_flow_dynamic(q, key, size, DURATION, WARMUP)
-                    m = measure(q, key)
+                    m = measure_pkts(q, key)
                     rx_mpps_mean = 0
                     tx_mpps_mean = 0
                     for v in m.itervalues():

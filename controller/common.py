@@ -55,9 +55,10 @@ def run_flow_dynamic(q, key, size=MIN_SIZE, \
         "online": True})]))
     time.sleep(warmup + duration + 0.15)
 
-def measure(q, key):
+def measure_pkts(q, key):
     time.sleep(0.2)
     measure = q.results
+    return measure
 
 def restart_pktgen(handle, port, nic, count):
     if handle:
