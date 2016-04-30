@@ -91,8 +91,8 @@ update_stats(struct pktgen_config *config UNUSED, struct rate_stats *s,
     s->var_txbps += delta * (delta - s->avg_txbps);
 
     /* update tx pps mean/var */
-    s->avg_txpps += delta / s->n;
     delta = tx_pps - s->avg_txpps;
+    s->avg_txpps += delta / s->n;
     s->var_txpps += delta * (tx_pps - s->avg_txpps);
 
     /* update tx wire rate mean/var */
