@@ -53,10 +53,10 @@ def run_flow_dynamic(q, key, size=MIN_SIZE, \
         "src_mac": "68:05:ca:00:00:ab",
         "dst_mac": "68:05:ca:00:00:01",
         "online": True})]))
-    sleep(warmup + duration + 0.15)
+    time.sleep(warmup + duration + 0.15)
 
 def measure(q, key):
-    sleep(0.2)
+    time.sleep(0.2)
     measure = q.results
 
 def restart_pktgen(handle, port, nic, count):
