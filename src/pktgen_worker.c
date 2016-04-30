@@ -49,7 +49,7 @@ init_mbuf(struct rte_mbuf *buf, struct pktgen_config *config)
         udp_hdr = (struct udp_hdr *)(ip_hdr + 1);
         udp_hdr->src_port = 0xAABB;
         udp_hdr->dst_port = 0xCCDD;
-        udp_hdr->dgram_cksum = 0;
+        udp_hdr->dgram_cksum = rte_ipv4_phdr_cksum(ip_hdr, buf->ol_flags);
         udp_hdr->dgram_len = rte_cpu_to_be_16(
             pkt_size - sizeof(struct ether_hdr) - sizeof(*ip_hdr));
     } else {
@@ -88,7 +88,7 @@ update_stats(struct pktgen_config *config UNUSED, struct rate_stats *s,
     /* update tx bps mean/var */
     double delta = tx_bps - s->avg_txbps;
     s->avg_txbps += delta / s->n;
-    s->var_txbps += delta * (tx_bps - s->avg_txbps);
+    s->var_txbps += delta * (delta - s->avg_txbps);
 
     /* update tx pps mean/var */
     delta = tx_pps - s->avg_txpps;
@@ -124,8 +124,8 @@ update_stats(struct pktgen_config *config UNUSED, struct rate_stats *s,
 
 #if GEN_DEBUG
     log_info("[lcore=%d] rx/tx stats: mpps=%0.3f/%0.3f wire_mbps=%0.1f/%0.1f",
-	     config->lcore_id, rx_pps / 1000000, tx_pps / 1000000,
-	     rxwire / 1000000, txwire / 1000000);
+             config->lcore_id, rx_pps / 1000000, tx_pps / 1000000,
+             rxwire / 1000000, txwire / 1000000);
 #endif
 }
 
@@ -278,8 +278,11 @@ do_tx(struct pktgen_config *config, struct rate_stats *r_stats,
     uint32_t pktlen_sum[BURST_SIZE + 1];
     uint64_t exp_bytes = elapsed_current * config->tx_rate * 1000 / 8;
     uint16_t nb_tx, i;
-    int burst = (exp_bytes - r_stats->tx_bytes) /
+    int burst = ((long)exp_bytes - (long)r_stats->tx_bytes) /
                 ((r_stats->tx_bytes + 1) / (r_stats->tx_pkts + 1));
+    if (unlikely(exp_bytes <= r_stats->tx_bytes)) {
+        return 0;
+    }
     burst = RTE_MIN(burst, BURST_SIZE);
 
     if (unlikely(burst <= 0 ||
@@ -310,11 +313,9 @@ static inline void
 reset_stats(struct pktgen_config *config, struct rate_stats *r_stats)
 {
     // drain rx
-    for (int i = 0; i < 2; i++) {
-        while (do_rx(config, r_stats, get_time_msec()) > 0)
-            ;
-        rte_delay_us(20);
-    }
+    rte_delay_us(5000);
+    while (do_rx(config, r_stats, get_time_msec()) > 0)
+        ;
     memset(r_stats, 0, offsetof(struct rate_stats, flow_ctrs));
     memset(r_stats->flow_times, 0, sizeof(double) * (config->num_flows + 1));
     memset(r_stats->flow_ctrs, 0, sizeof(uint16_t) * (config->num_flows + 1));
@@ -327,8 +328,7 @@ worker_loop(struct pktgen_config *config)
 {
     uint32_t i;
     struct rte_mbuf *bufs[BURST_SIZE];
-    double now, start_time, elapsed_total, elapsed_current, prev_rxtx,
-        tx_time = 0;
+    double now, start_time, elapsed_total, elapsed_current, prev_rxtx;
     struct rate_stats *r_stats =
         rte_malloc("rate_stats", sizeof(struct rate_stats), 0);
     int wamrup;
@@ -364,12 +364,10 @@ worker_loop(struct pktgen_config *config)
         if (config->tx_rate == -1) {
             config->tx_rate = config->port_speed;
             dynamic_tx_rate = 1;
+            log_info("Dynamic TX is on warmup %d", config->warmup);
         } else {
             dynamic_tx_rate = 0;
-            if (config->tx_rate > 0) {
-                tx_time = 1000000 * (config->size_max * 8 * BURST_SIZE) /
-                          (1000.0f * config->tx_rate);
-            }
+            log_info("Dynamic TX is off");
         }
 
         for (;;) {
@@ -385,36 +383,24 @@ worker_loop(struct pktgen_config *config)
                 start_time = get_time_msec();
                 prev_rxtx = 0;
                 wamrup = 0;
-            } else if (unlikely(elapsed_current > 100)) {
+            } else if (unlikely(elapsed_current > 250)) {
                 update_stats(config, r_stats, elapsed_current / 1000);
 
                 if (unlikely(wamrup && dynamic_tx_rate &&
-                             r_stats->avg_txbps > r_stats->avg_rxbps)) {
-                    if ((r_stats->avg_txbps - r_stats->avg_rxbps) 
-                    		    / r_stats->avg_txbps > 0.01) {
-			    double factor = RTE_MIN(
-				1.05,
-				1 +
-				    0.5 *
-					(r_stats->avg_txbps / r_stats->avg_rxbps - 1));
-			    config->tx_rate = factor * r_stats->avg_rxbps / 1000000;
-			    log_info("adjusting txrate %d %f %f", config->tx_rate,
-					    r_stats->avg_txbps, r_stats->avg_rxbps);
-			    reset_stats(config, r_stats);
-			    if (config->tx_rate > 0) {
-				tx_time = 1000000 *
-					  (config->size_max * 8 * BURST_SIZE) /
-					  (1000 * config->tx_rate);
-			    } else {
-				tx_time = 0;
-			    }
-		    }
+                             r_stats->avg_txpps > r_stats->avg_rxpps)) {
+                    double factor =
+                        r_stats->avg_rxpps / r_stats->avg_txpps +
+                        0.1 * (1 - r_stats->avg_rxpps / r_stats->avg_txpps);
+                    config->tx_rate = factor * r_stats->avg_txbps / 1000000;
+                    log_info("adjusting txrate %d %f", config->tx_rate, factor);
+                    reset_stats(config, r_stats);
                 }
 
                 start_time = get_time_msec();
                 prev_rxtx = 0;
-            } else if (now - prev_rxtx > tx_time) {
-                while (do_rx(config, r_stats, now) == BURST_SIZE);
+            } else if (now - prev_rxtx > 0.0023) {
+                while (do_rx(config, r_stats, now) == BURST_SIZE)
+                    ;
                 do_tx(config, r_stats, elapsed_current, now);
                 prev_rxtx = now;
             }

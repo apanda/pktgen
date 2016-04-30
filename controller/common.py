@@ -30,6 +30,10 @@ def exec_command_and_wait(conn, cmd):
     e = list(e)
     return (o, e)
 
+def exec_command_noblock(conn, cmd):
+    i, o, e = conn.exec_command(cmd)
+    return (o, e)
+
 def add_server(q, server, port):
     key = "%s_%d"%(server, port)
     q.add_node(Node(key, server, port))
@@ -83,9 +87,16 @@ def restart_pktgen(handle, port, nic, count):
                               stdout=f, \
                               stderr=f)
     shibbolet = "Port %d MAC"%(count - 1)
+    print "Waiting for ", shibbolet
     with open(OUT_FILE, 'r') as f2:
         while True:
-            l = f2.readline()
-            if shibbolet in l:
+            try:
+                l = f2.readline()
+                print l.strip()
+                if shibbolet in l:
+                    print "Done launching"
+                    return handle
+            except:
+                print "User says done launching"
                 return handle
 

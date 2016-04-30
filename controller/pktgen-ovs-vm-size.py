@@ -79,7 +79,7 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                     o, e = exec_command_and_wait(conn, stop_container)
                     print "Out ", '\n\t'.join(o)
                     print "Err ", '\n\t'.join(e)
-                    if tx_mpps_mean < 1.0:
+                    if tx_mpps_mean < 0.1:
                         success = False
                         print "Restarting"
                     else:

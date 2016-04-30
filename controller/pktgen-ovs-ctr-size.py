@@ -52,8 +52,6 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                     success = False
                     while not success:
                         success = True
-                        handle = restart_pktgen(handle, pgen_port, "81:00", \
-                                n_port)
                         print "Starting OVS"
                         o, e = exec_command_and_wait(conn, start_ovs%(n_port))
                         print "Out ", '\n\t'.join(o)
@@ -65,6 +63,9 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                         o,e = exec_command_and_wait(conn, run_container)
                         print "Out ", '\n\t'.join(o)
                         print "Err ", '\n\t'.join(e)
+                        handle = restart_pktgen(handle, pgen_port, "81:00", \
+                                n_port)
+                        time.sleep(0.1)
                         print "Measuring"
                         run_flow_dynamic(q, key, size)
                         print "Stopping"
@@ -80,7 +81,7 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                         o, e = exec_command_and_wait(conn, stop_container)
                         print "Out ", '\n\t'.join(o)
                         print "Err ", '\n\t'.join(e)
-                        if tx_mpps_mean < 0.5:
+                        if tx_mpps_mean < 0.1:
                             n_restarts += 1
                             if n_restarts < 2:
                                 success = False

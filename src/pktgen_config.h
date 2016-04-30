@@ -26,4 +26,3 @@
 #define NUM_SAMPLES 100000
 
 #endif
-

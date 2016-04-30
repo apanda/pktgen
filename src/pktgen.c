@@ -666,10 +666,9 @@ main(int argc, char *argv[])
                     (!is_same_ether_addr(&cmd[j]->port_mac,
                                          &config[li]->port_mac) &&
                      !is_zero_ether_addr(&cmd[j]->port_mac))) {
-		    log_err("Skipping core %d because not correct port",
-		    		    i);
+                    log_err("Skipping core %d because not correct port", i);
                     continue;
-		}
+                }
 
                 unsigned old_flags = 0;
                 config[li]->tx_rate = cmd[j]->tx_rate;

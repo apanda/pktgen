@@ -42,13 +42,13 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
     kill_all = "/opt/e2d2/scripts/kill-all.sh"
     o, e = exec_command_and_wait(conn, kill_all)
     sizes = [64, 128, 256, 512, 768, 1024, 1200, 1500]
+    # sizes = [128, 256, 512]
     for n_port in xrange(1, 5):
         for size in sizes:
             try:
                 success = False
                 while not success:
                     success = True
-                    handle = restart_pktgen(handle, pgen_port, "81:00", n_port)
                     print "Starting BESS"
                     o, e = exec_command_and_wait(conn, start_bess%(n_port, \
                         n_port))
@@ -61,19 +61,22 @@ def measure_delay(q, pgen_server, pgen_port, server, out):
                     o,e = exec_command_and_wait(conn, start_cmd)
                     print "Out ", '\n\t'.join(o)
                     print "Err ", '\n\t'.join(e)
-                    run_flow_dynamic(q, key, size, DURATION, WARMUP)
+                    handle = restart_pktgen(handle, pgen_port, "81:00", n_port)
+                    time.sleep(0.1)
+                    run_flow_dynamic(q, key, size, DURATION, WARMUP_TIME)
                     m = measure_pkts(q, key)
                     rx_mpps_mean = 0
                     tx_mpps_mean = 0
                     for v in m.itervalues():
                         for measure in v.itervalues():
+                            print measure['tx_mpps_mean']
                             if measure['rx_mpps_mean'] > 0.0: 
                                 rx_mpps_mean += measure['rx_mpps_mean']
                                 tx_mpps_mean += measure['tx_mpps_mean']
                     o, e = exec_command_and_wait(conn, stop_container)
                     print "Out ", '\n\t'.join(o)
                     print "Err ", '\n\t'.join(e)
-                    if tx_mpps_mean < 1.0:
+                    if tx_mpps_mean < 0.1:
                         success = False
                         print "Restarting"
                     else:
