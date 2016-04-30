@@ -91,8 +91,8 @@ update_stats(struct pktgen_config *config UNUSED, struct rate_stats *s,
     s->var_txbps += delta * (delta - s->avg_txbps);
 
     /* update tx pps mean/var */
-    delta = tx_pps - s->avg_txpps;
     s->avg_txpps += delta / s->n;
+    delta = tx_pps - s->avg_txpps;
     s->var_txpps += delta * (tx_pps - s->avg_txpps);
 
     /* update tx wire rate mean/var */
@@ -368,6 +368,13 @@ worker_loop(struct pktgen_config *config)
         } else {
             dynamic_tx_rate = 0;
             log_info("Dynamic TX is off");
+<<<<<<< HEAD
+=======
+            if (config->tx_rate > 0) {
+                tx_time = 1000000 * (config->size_max * 8 * BURST_SIZE) /
+                          (1000.0f * config->tx_rate);
+            }
+>>>>>>> 3c89e26fc3b36c62d60121e2ed757fcae0dae8ff
         }
 
         for (;;) {
@@ -387,6 +394,7 @@ worker_loop(struct pktgen_config *config)
                 update_stats(config, r_stats, elapsed_current / 1000);
 
                 if (unlikely(wamrup && dynamic_tx_rate &&
+<<<<<<< HEAD
                              r_stats->avg_txpps > r_stats->avg_rxpps)) {
                     double factor =
                         r_stats->avg_rxpps / r_stats->avg_txpps +
@@ -394,6 +402,30 @@ worker_loop(struct pktgen_config *config)
                     config->tx_rate = factor * r_stats->avg_txbps / 1000000;
                     log_info("adjusting txrate %d %f", config->tx_rate, factor);
                     reset_stats(config, r_stats);
+=======
+                             r_stats->avg_txbps > r_stats->avg_rxbps)) {
+                    if (r_stats->avg_rxbps == 0) {
+		           config->start_time = get_time_msec();
+		           continue;
+		    }
+                    if ((r_stats->avg_txbps - r_stats->avg_rxbps) 
+                    		    / r_stats->avg_txbps > 0.0001) {
+			    double factor = RTE_MIN(
+				1.25,
+				1 + 0.5 * (r_stats->avg_txbps / r_stats->avg_rxbps - 1));
+			    config->tx_rate = factor * r_stats->avg_rxbps / 1000000;
+			    log_info("adjusting txrate %d %f %f", config->tx_rate,
+					    r_stats->avg_txbps, r_stats->avg_rxbps);
+			    reset_stats(config, r_stats);
+			    if (config->tx_rate > 0) {
+				tx_time = 1000000 *
+					  (config->size_max * 8 * BURST_SIZE) /
+					  (1000 * config->tx_rate);
+			    } else {
+				tx_time = 0;
+			    }
+		    }
+>>>>>>> 3c89e26fc3b36c62d60121e2ed757fcae0dae8ff
                 }
 
                 start_time = get_time_msec();
